@@ -1,0 +1,6 @@
+.env
+notes/
+myvenv/
+__pycache__/
+*.pyc
+vector_store/

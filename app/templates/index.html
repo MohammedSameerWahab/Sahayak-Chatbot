@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sahayak - Your Academic Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Sahayak Mascot" class="logo">
+                <h1>Sahayak</h1>
+            </div>
+            <nav class="subject-nav" id="subject-list">
+                <p class="loading-text">Loading subjects...</p>
+            </nav>
+        </aside>
+
+        <main class="chat-container">
+            <div class="chat-header">
+                <h2 id="chat-title">Select a document to begin</h2>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot-message">
+                    <img src="{{ url_for('static', filename='logo.png') }}" alt="Bot" class="avatar">
+                    <div class="message-content">
+                        <p>Hello! I'm Sahayak. Please select a subject and a document from the left panel to start chatting.</p>
+                    </div>
+                </div>
+            </div>
+            <form class="chat-input-form" id="chat-form">
+                <input type="text" id="user-input" placeholder="Ask a question about the selected document..." disabled>
+                <button type="submit" id="send-button" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" /></svg>
+                </button>
+            </form>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

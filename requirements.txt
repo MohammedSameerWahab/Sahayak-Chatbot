@@ -1,0 +1,24 @@
+# Flask and PostgreSQL
+Flask
+psycopg2-binary
+SQLAlchemy
+
+# Google Gemini LLM
+google-generativeai
+
+# Core RAG and Data Handling Libraries
+langchain
+langchain-google-genai
+langchain-community
+chromadb
+sentence-transformers
+
+# Document Loaders
+pypdf
+python-pptx
+
+# For managing environment variables
+python-dotenv
+
+#
+unstructured
