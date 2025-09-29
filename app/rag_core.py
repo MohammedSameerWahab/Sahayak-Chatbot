@@ -1,7 +1,6 @@
 import os
 from dotenv import load_dotenv
 
-# RAG-specific imports
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
@@ -9,7 +8,6 @@ from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 
-# Load environment variables
 load_dotenv()
 
 # --- CONFIGURATION ---
@@ -19,11 +17,7 @@ LLM_MODEL = "gemini-2.5-flash"
 
 # --- INITIALIZE MODELS ---
 try:
-    # Initialize the LLM (Gemini)
-    llm = ChatGoogleGenerativeAI(model=LLM_MODEL, google_api_key=os.getenv("GOOGLE_API_KEY"), temperature=0,
-                             convert_system_message_to_human=True)
-
-    # Initialize the embedding model
+    llm = ChatGoogleGenerativeAI(model=LLM_MODEL, google_api_key=os.getenv("GOOGLE_API_KEY"), temperature=0,convert_system_message_to_human=True)
     embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
     print("✅ Models initialized successfully.")
 except Exception as e:
@@ -32,26 +26,23 @@ except Exception as e:
     embeddings = None
 
 # --- RAG CHAIN LOGIC ---
-def get_rag_response(doc_id: str, query: str) -> str:
-    """
-    Finds the relevant ChromaDB collection, retrieves context, and generates a response.
-    """
+# The function now accepts 'subject_name' instead of 'doc_id'
+def get_rag_response(subject_name: str, query: str) -> str:
     if not llm or not embeddings:
         return "Models are not available. Please check the server logs."
 
     try:
-        # 1. Load the specific vector store collection for the given document ID
+        # Load the vector store collection for the given subject_name
         vector_store = Chroma(
             persist_directory=VECTOR_STORE_DIR,
             embedding_function=embeddings,
-            collection_name=doc_id
+            collection_name=subject_name # Use subject_name here
         )
-        retriever = vector_store.as_retriever(search_kwargs={'k': 3}) # Retrieve top 3 chunks
+        retriever = vector_store.as_retriever(search_kwargs={'k': 5}) # Retrieve more chunks for broader context
 
-        # 2. Define the prompt template
         template = """
         You are 'Sahayak', a helpful academic assistant.
-        Answer the following question based only on the context provided.
+        Answer the following question based only on the context provided from the subject notes.
         If the answer is not in the context, say 'The answer is not available in these notes.'
 
         Context:
@@ -64,7 +55,6 @@ def get_rag_response(doc_id: str, query: str) -> str:
         """
         prompt = PromptTemplate.from_template(template)
 
-        # 3. Create the RAG chain using LangChain Expression Language (LCEL)
         rag_chain = (
             {"context": retriever, "question": RunnablePassthrough()}
             | prompt
@@ -72,10 +62,9 @@ def get_rag_response(doc_id: str, query: str) -> str:
             | StrOutputParser()
         )
 
-        # 4. Invoke the chain with the user's query and return the response
         response = rag_chain.invoke(query)
         return response
 
     except Exception as e:
-        print(f"❌ Error during RAG chain execution for doc_id '{doc_id}': {e}")
+        print(f"❌ Error during RAG chain execution for subject '{subject_name}': {e}")
         return "An error occurred while processing your request. Please check the server logs."

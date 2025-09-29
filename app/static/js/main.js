@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- DOM Element Selectors ---
     const subjectList = document.getElementById('subject-list');
     const chatTitle = document.getElementById('chat-title');
     const chatMessages = document.getElementById('chat-messages');
@@ -7,21 +6,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const userInput = document.getElementById('user-input');
     const sendButton = document.getElementById('send-button');
 
-    let currentDocId = null;
+    // Store the subject name instead of doc ID
+    let currentSubjectName = null;
     let activeFileElement = null;
 
-    // --- Core Functions ---
-
-    /**
-     * Fetches subjects and files from the API and populates the sidebar.
-     */
     const fetchSubjects = async () => {
         try {
             const response = await fetch('/api/subjects');
             if (!response.ok) throw new Error('Network response was not ok');
             const subjects = await response.json();
             
-            subjectList.innerHTML = ''; // Clear loading text
+            subjectList.innerHTML = '';
             for (const subjectName in subjects) {
                 const details = document.createElement('details');
                 details.className = 'subject-details';
@@ -39,11 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     const link = document.createElement('a');
                     link.href = '#';
                     link.textContent = file.name;
-                    link.dataset.docId = file.id;
-                    link.dataset.docName = file.name;
-                    
+                    // Store subject_name in the dataset
+                    link.dataset.subjectName = subjectName; 
                     link.addEventListener('click', handleFileSelection);
-                    
                     fileItem.appendChild(link);
                     fileList.appendChild(fileItem);
                 });
@@ -54,87 +47,67 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             subjectList.innerHTML = '<p class="error-text">Failed to load subjects.</p>';
-            console.error('Error fetching subjects:', error);
         }
     };
 
-    /**
-     * Adds a message to the chat window.
-     * @param {string} sender - 'user' or 'bot'
-     * @param {string} text - The message content
-     * @param {boolean} isThinking - Optional flag for bot's thinking state
-     */
     const addMessage = (sender, text, isThinking = false) => {
+        // ... (This function does not need to be changed) ...
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender}-message`;
         if (isThinking) {
             messageDiv.classList.add('thinking');
             messageDiv.id = 'thinking-message';
         }
-
-        let contentHTML = '';
         if (sender === 'bot') {
             const botAvatar = document.createElement('img');
-            botAvatar.src = "/static/logo.png"; // Make sure logo.png is in static folder
+            botAvatar.src = "/static/logo.png";
             botAvatar.alt = "Bot";
             botAvatar.className = "avatar";
             messageDiv.appendChild(botAvatar);
         }
-
         const messageContent = document.createElement('div');
         messageContent.className = 'message-content';
         messageContent.textContent = text;
         messageDiv.appendChild(messageContent);
-        
         chatMessages.appendChild(messageDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
     };
 
-    // --- Event Handlers ---
-
-    /**
-     * Handles the click event on a file link.
-     */
     const handleFileSelection = (e) => {
         e.preventDefault();
         const link = e.target;
-        currentDocId = link.dataset.docId;
-        const docName = link.dataset.docName;
+        // Get the subject name from the link's dataset
+        currentSubjectName = link.dataset.subjectName;
 
-        // Update UI for active selection
-        if (activeFileElement) {
-            activeFileElement.classList.remove('active');
-        }
+        if (activeFileElement) activeFileElement.classList.remove('active');
         link.classList.add('active');
         activeFileElement = link;
         
-        // Update chat interface
-        chatTitle.textContent = `Chatting with: ${docName}`;
-        chatMessages.innerHTML = ''; // Clear previous messages
-        addMessage('bot', `You've selected ${docName}. How can I help you with this document?`);
+        const subjectTitle = currentSubjectName.replace(/_/g, ' ');
+        chatTitle.textContent = `Chatting with: Subject - ${subjectTitle}`;
+        chatMessages.innerHTML = '';
+        addMessage('bot', `You've selected the ${subjectTitle} subject. How can I help you?`);
         userInput.disabled = false;
         sendButton.disabled = false;
-        userInput.placeholder = `Ask a question about ${docName}...`;
+        userInput.placeholder = `Ask a question about ${subjectTitle}...`;
         userInput.focus();
     };
 
-    /**
-     * Handles the chat form submission.
-     */
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         const query = userInput.value.trim();
-        if (!query || !currentDocId) return;
+        if (!query || !currentSubjectName) return;
 
         addMessage('user', query);
-        userInput.value = ''; // Clear input field immediately
-        addMessage('bot', 'Sahayak is thinking...', true); // Show thinking indicator
+        userInput.value = '';
+        addMessage('bot', 'Sahayak is thinking...', true);
         
         try {
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ doc_id: currentDocId, query: query }),
+                // Send subject_name in the payload
+                body: JSON.stringify({ subject_name: currentSubjectName, query: query }),
             });
 
             const thinkingMessage = document.getElementById('thinking-message');
@@ -148,11 +121,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const thinkingMessage = document.getElementById('thinking-message');
             if (thinkingMessage) thinkingMessage.remove();
             addMessage('bot', 'Sorry, I encountered an error. Please try again.');
-            console.error('Error in chat submission:', error);
         }
     };
 
-    // --- Initializations ---
     chatForm.addEventListener('submit', handleFormSubmit);
     fetchSubjects();
 });
