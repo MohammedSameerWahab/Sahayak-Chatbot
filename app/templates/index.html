@@ -10,38 +10,63 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <aside class="sidebar">
+    <div class="container" id="container">
+        
+        <button class="open-btn" id="open-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10zM2 4.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.25zm0 11.5a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z" clip-rule="evenodd" /></svg>
+        </button>
+
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <img src="{{ url_for('static', filename='logo.png') }}" alt="Sahayak Mascot" class="logo">
-                <h1>Sahayak</h1>
+                <h1 class="sidebar-title">Sahayak</h1>
+                <button class="collapse-btn" id="collapse-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M15 10a.75.75 0 01-.75.75H7.707l2.147 2.146a.75.75 0 01-1.06 1.06l-3.5-3.5a.75.75 0 010-1.06l3.5-3.5a.75.75 0 011.06 1.06L7.707 9.25H14.25A.75.75 0 0115 10z" clip-rule="evenodd" /></svg>
+                </button>
             </div>
             <nav class="subject-nav" id="subject-list">
                 <p class="loading-text">Loading subjects...</p>
             </nav>
         </aside>
 
-        <main class="chat-container">
-            <div class="chat-header">
-                <h2 id="chat-title">Select a document to begin</h2>
-            </div>
-            <div class="chat-messages" id="chat-messages">
-                <div class="message bot-message">
-                    <img src="{{ url_for('static', filename='logo.png') }}" alt="Bot" class="avatar">
-                    <div class="message-content">
-                        <p>Hello! I'm Sahayak. Please select a subject and a document from the left panel to start chatting.</p>
-                    </div>
+        <div class="main-content">
+            <div class="pdf-viewer-container" id="pdf-viewer-container">
+                <div id="viewer-placeholder">
+                    <p>Select a document to display it here.</p>
+                </div>
+                <canvas id="pdf-canvas"></canvas>
+                <div class="pdf-controls" id="pdf-controls">
+                    <button id="prev-page">Previous</button>
+                    <span>Page <span id="page-num"></span> of <span id="page-count"></span></span>
+                    <button id="next-page">Next</button>
                 </div>
             </div>
-            <form class="chat-input-form" id="chat-form">
-                <input type="text" id="user-input" placeholder="Ask a question about the selected document..." disabled>
-                <button type="submit" id="send-button" disabled>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" /></svg>
-                </button>
-            </form>
-        </main>
+
+            <div class="chat-wrapper" id="chat-wrapper">
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <h2 id="chat-title">Select a document to begin</h2>
+                    </div>
+                    <div class="chat-messages" id="chat-messages">
+                         <div class="message bot-message">
+                            <img src="{{ url_for('static', filename='logo.png') }}" alt="Bot" class="avatar">
+                            <div class="message-content">
+                                <p>Hello! I'm Sahayak. Please select a document to start learning.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <form class="chat-input-form" id="chat-form">
+                        <input type="text" id="user-input" placeholder="Select a document..." disabled>
+                        <button type="submit" id="send-button" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" /></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

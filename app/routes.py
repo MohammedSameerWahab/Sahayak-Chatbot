@@ -1,8 +1,15 @@
 import os
-from flask import request, jsonify, render_template
+# Add 'send_from_directory' to this import line
+from flask import request, jsonify, render_template, send_from_directory
 from sqlalchemy import create_engine, text
 from app import app
 from app.rag_core import get_rag_response
+
+# Get the absolute path to the project's root directory
+# This is more robust than relative paths
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+NOTES_DIR = os.path.join(ROOT_DIR, 'notes')
+
 
 DB_URL = os.getenv("DATABASE_URL")
 try:
@@ -13,17 +20,10 @@ except Exception as e:
 @app.route('/')
 def index():
     return render_template('index.html')
-# ---------------------------------------------
-
-
-# --- API ENDPOINTS ---
 
 @app.route('/api/subjects', methods=['GET'])
 def get_subjects():
-    """
-    Endpoint to get all subjects and their associated documents.
-    This populates the navigation bar on the frontend.
-    """
+    # ... (This function remains unchanged) ...
     if not engine:
         return jsonify({"error": "Database connection not available"}), 500
     data = {}
@@ -44,15 +44,20 @@ def get_subjects():
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
+    # ... (This function remains unchanged) ...
     data = request.get_json()
-    # Expect 'subject_name' instead of 'doc_id'
     if not data or 'subject_name' not in data or 'query' not in data:
         return jsonify({"error": "Missing 'subject_name' or 'query' in request"}), 400
-
     subject_name = data['subject_name']
     query = data['query']
-    
-    # Pass subject_name to the RAG function
     response = get_rag_response(subject_name, query)
-    
     return jsonify({"answer": response})
+
+# --- NEW ROUTE TO SERVE FILES ---
+@app.route('/notes/<subject>/<filename>')
+def serve_note(subject, filename):
+    """
+    Securely serves files from the notes directory.
+    """
+    # Use send_from_directory for security (prevents directory traversal attacks)
+    return send_from_directory(os.path.join(NOTES_DIR, subject), filename)
