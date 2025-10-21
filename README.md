@@ -2,7 +2,7 @@
 
 Sahayak is a full-stack RAG (Retrieval-Augmented Generation) web application that transforms static university course notes into a dynamic and interactive learning tool. Students can select a subject, view their course materials (PDFs) directly in the app, and ask questions in a conversational chat interface to get instant, context-aware answers.
 
-**(Add a screenshot or GIF of the application in action here\!)**
+**![Sahayak Demo](./assets/sahayak_demo.gif)**
 
 -----
 
